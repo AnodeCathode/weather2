@@ -5,6 +5,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityFishHook;
@@ -104,7 +105,12 @@ public class WeatherUtilEntity {
 
         if (entity1 instanceof EntityLivingBase)
         {
-            //if (entity1.onGround || entity1.handleWaterMovement())
+            
+            if (entity1 instanceof EntityAnimal)
+        	{
+            	return 4000F;	
+            }
+        	//if (entity1.onGround || entity1.handleWaterMovement())
             //{
                 //entity1.onGround = false;
                 //c_CoroWeatherUtil.setEntityAge((EntityLivingBase)entity1, -150);
