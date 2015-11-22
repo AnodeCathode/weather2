@@ -170,7 +170,7 @@ public class StormObject {
     public Vec3 posBaseFormationPos = Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord); //for formation / touchdown progress, where all the ripping methods scan from
     
     public boolean naturallySpawned = true;
-    public boolean canSnowFromCloudTemperature = true;
+    //public boolean canSnowFromCloudTemperature = true;
     public boolean alwaysProgresses = false;
     public boolean isDead = false;
     
@@ -835,7 +835,7 @@ public class StormObject {
         
         float f = TFC_Climate.getHeightAdjustedTemp(world, par1, par2, par3);
 
-        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && f > 0.15F))
+        if  (f > 0)
         {
             return false;
         }

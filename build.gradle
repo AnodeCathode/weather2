@@ -31,7 +31,7 @@ allprojects {
     apply plugin: 'maven'
     group = config.group_name
     version = config.mod_version
-    archivesBaseName = "${config.minecraft_version}-${config.mod_id}"
+    archivesBaseName = "${config.mod_id}-${config.minecraft_version}"
 
     minecraft {
         version = config.minecraft_version + "-" + config.forge_version + "-" + config.minecraft_version 
@@ -69,10 +69,6 @@ dependencies {
 task deobfJar(type: Jar) {
     from sourceSets.main.output
     appendix = 'deobf'
-    manifest.attributes(
-      'FMLCorePlugin': 'TechNodefirmacraft.TNFCASMLoadingPlugin',
-			'FMLCorePluginContainsFMLMod': 'true',
-    )
 }
 
 //creates a jar containing only the src
@@ -95,9 +91,8 @@ processResources {
 
         // replaces
         expand ([
-            'mod_version': project.config.mod_version,
-            'tfc_version': project.config.tfc_version,
-            'minecraft_version': project.config.minecraft_version,
+            'version': project.config.mod_version,
+            'mcversion': project.config.minecraft_version,
         ])
     }
     // copy everything else, that we didn't copy before
@@ -109,12 +104,7 @@ processResources {
 clean {
   delete "bin"
 }
-jar {
-    manifest.attributes(
-      'FMLCorePlugin': 'TechNodefirmacraft.TNFCASMLoadingPlugin',
-			'FMLCorePluginContainsFMLMod': 'true',
-    )
-}
+
 task wrapper(type: Wrapper) {
 	gradleVersion = '2.2.1'
 }
