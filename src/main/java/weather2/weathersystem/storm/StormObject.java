@@ -598,7 +598,7 @@ public class StormObject {
 		
 		
 	}
-	
+	//TODO Fix for TFC snow
 	public void tickSnowFall() {
 		
 		if (!ConfigMisc.Snow_PerformSnowfall) return;
@@ -821,7 +821,7 @@ public class StormObject {
 		}
 		return new ChunkCoordinatesBlock(0, 0, 0, Blocks.air, 0);
 	}
-	
+	//TODO Alter snow routine for TFC.
 	public boolean canSnowAtBody(int par1, int par2, int par3)
     {
 		World world = manager.getWorld();
