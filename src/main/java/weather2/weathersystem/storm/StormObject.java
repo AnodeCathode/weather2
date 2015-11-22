@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.bioxx.tfc.Core.TFC_Climate;
+import com.bioxx.tfc.api.TFCBlocks;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MaterialLiquid;
 import net.minecraft.client.Minecraft;
@@ -167,7 +170,7 @@ public class StormObject {
     public Vec3 posBaseFormationPos = Vec3.createVectorHelper(pos.xCoord, pos.yCoord, pos.zCoord); //for formation / touchdown progress, where all the ripping methods scan from
     
     public boolean naturallySpawned = true;
-    public boolean canSnowFromCloudTemperature = false;
+    public boolean canSnowFromCloudTemperature = true;
     public boolean alwaysProgresses = false;
     public boolean isDead = false;
     
@@ -197,14 +200,14 @@ public class StormObject {
 	public void initFirstTime() {
 		ID = StormObject.lastUsedStormID++;
 		
-		BiomeGenBase bgb = manager.getWorld().getBiomeGenForCoords(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
+		//BiomeGenBase bgb = manager.getWorld().getBiomeGenForCoords(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.zCoord));
 
-		
+		World world = manager.getWorld();
 		float temp = 1;
 		
-		if (bgb != null) {
-			temp = bgb.getFloatTemperature(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord));
-		}
+		//if (bgb != null) {
+			temp = TFC_Climate.getHeightAdjustedTemp(world, MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord));
+		//}
 		
 		//initial setting, more apparent than gradual adjustments
 		if (naturallySpawned) {
@@ -649,9 +652,9 @@ public class StormObject {
 		            //world.theProfiler.startSection("getChunk");
 		            
 		            //afterthought, for weather 2.3.7
-		            if (!world.getChunkProvider().chunkExists(xx, zz)) {
-		            	continue;
-		            }
+		           //if (!world.getChunkProvider().chunkExists(xx, zz)) {
+		            	//continue;
+		            //}
 		            
 		            Chunk chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
 		            //world.moodSoundAndLightCheck(k, l, chunk);
@@ -690,12 +693,12 @@ public class StormObject {
 			            
 			            
 			
-			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && Blocks.snow.canPlaceBlockAt(world, xxx + x, setBlockHeight, zzz + z)) {
+			            if (canSnowAtBody(xxx + x, setBlockHeight, zzz + z) && TFCBlocks.snow.canPlaceBlockAt(world, xxx + x, setBlockHeight, zzz + z)) {
 			            //if (entP != null && entP.getDistance(xx, entP.posY, zz) < 16) {
 			            	boolean perform = false;
 			            	Block id = world.getBlock(xxx + x, setBlockHeight, zzz + z);
 			            	int meta = 0;
-			            	if (id == Blocks.snow) {
+			            	if (id == TFCBlocks.snow) {
 			            		if (ConfigMisc.Snow_ExtraPileUp) {
 				            		meta = world.getBlockMetadata(xxx + x, setBlockHeight, zzz + z);
 				            		if (meta < snowMetaMax) {
@@ -707,7 +710,7 @@ public class StormObject {
 				            				int originalSetBlockHeight = setBlockHeight;
 				            				for (i = 0; i < ConfigMisc.Snow_MaxBlockBuildupHeight; i++) {
 				            					Block checkID = world.getBlock(xxx + x, originalSetBlockHeight + i, zzz + z);
-				            					if (checkID == Blocks.snow) {
+				            					if (checkID == TFCBlocks.snow) {
 				            						meta = world.getBlockMetadata(xxx + x, originalSetBlockHeight + i, zzz + z);
 				            						if (meta < snowMetaMax) {
 				            							setBlockHeight = originalSetBlockHeight + i;
@@ -761,7 +764,7 @@ public class StormObject {
 			            	}
 			            	
 			            	if (perform) {
-			            		world.setBlock(xxx + x, setBlockHeight, zzz + z, Blocks.snow, meta, 3);
+			            		world.setBlock(xxx + x, setBlockHeight, zzz + z, TFCBlocks.snow, meta, 3);
 			            	}
 			            }
 			        }
@@ -808,7 +811,7 @@ public class StormObject {
 				//return that its an open area to start snow at
 				return new ChunkCoordinatesBlock(x, y, z, Blocks.air, 0);
 			}
-		} else if (checkID == Blocks.snow) {
+		} else if (checkID == TFCBlocks.snow) {
 			int checkMeta = world.getBlockMetadata(x, y, z);
 			//if detected snow is shorter, return with detected meta val!
 			//adjusting to <=
@@ -826,13 +829,13 @@ public class StormObject {
     {
 		World world = manager.getWorld();
 		
-        BiomeGenBase biomegenbase = world.getBiomeGenForCoords(par1, par3);
+        //BiomeGenBase biomegenbase = world.getBiomeGenForCoords(par1, par3);
         
-        if (biomegenbase == null) return false;
+        //if (biomegenbase == null) return false;
         
-        float f = biomegenbase.getFloatTemperature(par1, par2, par3);
+        float f = TFC_Climate.getHeightAdjustedTemp(world, par1, par2, par3);
 
-        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && biomegenbase.getFloatTemperature(par1, par2, par3) > 0.15F))
+        if ((canSnowFromCloudTemperature && levelTemperature > 0) || (!canSnowFromCloudTemperature && f > 0.15F))
         {
             return false;
         }
@@ -843,7 +846,7 @@ public class StormObject {
                 Block l = world.getBlock(par1, par2 - 1, par3);
                 Block i1 = world.getBlock(par1, par2, par3);
 
-                if ((CoroUtilBlock.isAir(i1) || i1 == Blocks.snow)/* && Block.snow.canPlaceBlockAt(world, par1, par2, par3)*/ && CoroUtilBlock.isAir(l) && l != Blocks.ice && l.getMaterial().blocksMovement())
+                if ((CoroUtilBlock.isAir(i1) || i1 == TFCBlocks.tallGrass)&& l != TFCBlocks.ice && l.getMaterial().blocksMovement())
                 {
                     return true;
                 }
@@ -900,7 +903,7 @@ public class StormObject {
 				
 				isInOcean = bgb.biomeName.contains("Ocean") || bgb.biomeName.contains("ocean");
 				
-				float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord)));
+				float biomeTempAdj = getTemperatureMCToWeatherSys(TFC_Climate.getHeightAdjustedTemp(world,MathHelper.floor_double(pos.xCoord), MathHelper.floor_double(pos.yCoord), MathHelper.floor_double(pos.zCoord)));
 				if (levelTemperature > biomeTempAdj) {
 					levelTemperature -= tempAdjustRate;
 				} else {
@@ -2175,12 +2178,12 @@ public class StormObject {
 	}
 	
 	public float getTemperatureMCToWeatherSys(float parOrigVal) {
-		//Weather.dbg("orig val: " + parOrigVal);
-		//-0.7 to make 0 be the middle average
-		parOrigVal -= 0.7;
-		//multiply by 2 for an increased difference, for more to work with
-		parOrigVal *= 2F;
-		//Weather.dbg("final val: " + parOrigVal);
+//		//Weather.dbg("orig val: " + parOrigVal);
+//		//-0.7 to make 0 be the middle average
+//		parOrigVal -= 0.7;
+//		//multiply by 2 for an increased difference, for more to work with
+//		parOrigVal *= 2F;
+//		//Weather.dbg("final val: " + parOrigVal);
 		return parOrigVal;
 	}
 	
